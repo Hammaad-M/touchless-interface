@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Touchless Interface</title>
+</head>
+<body onload="main()">
+<div id="loading">
+    <h1 id="status">Loading Model</h1>
+    <h1 id="directions-heading">Directions:</h1>
+    <p id="directions">
+        Keeping your palm flat towards the camera, move your hand around to navigate the cursor onto the colorful blocks. 
+    </p>
+    <p id="directions">
+        Curl your fingers in a grabbing motion or simply make a fist while the cursor is above an item to grab and move it with your hand.
+    </p>
+    <div class="start-button-wrapper">
+        <button onclick="finishLoading()" class="start-button">Start</button>
+    </div>
+</div>
+<div style="display: none" id="main">
+<video autoplay></video>
+<div class="container"><div class="target"></div>
+</div>
+
+<!-- Require the peer dependencies of handpose. -->
+<script src="https://unpkg.com/@tensorflow/tfjs-core@2.1.0/dist/tf-core.js"></script>
+<script src="https://unpkg.com/@tensorflow/tfjs-converter@2.1.0/dist/tf-converter.js"></script>
+
+<!-- You must explicitly require a TF.js backend if you're not using the tfs union bundle. -->
+<script src="https://unpkg.com/@tensorflow/tfjs-backend-webgl@2.1.0/dist/tf-backend-webgl.js"></script>
+<script src="https://unpkg.com/@tensorflow-models/handpose@0.0.6/dist/handpose.js"></script>
+
+<script src="app.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap');
+    #loading {
+        background-color: black;
+        width: 100%;
+        height: 100vh;
+        position: absolute;
+        top: 0;
+        right: 0;
+        color: white;
+        text-align: center;
+        font-size: 18px;
+        font-family: 'Ubuntu', sans-serif;
+    }
+    #loading > * {
+        margin-right: 30px;
+        margin-left: 30px;
+    }
+    #directions-heading {
+        font-size: 22px;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    video {
+        height: 10rem;
+        border-radius: 12px;
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        z-index: 2;
+    }
+    #directions {
+        font-size: 18px;
+    }
+    .container {
+        width: 100%;
+        background-color: black;
+        height: 100vh;
+        position: relative;
+        z-index: 1;
+    }
+    .start-button {
+        padding: 10px 20px;
+        border-radius: 12px;
+        margin-top: 15px;
+        display: none;
+    }
+    .start-button-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    .target {
+        position: absolute;
+        top: 50%;
+        right: 50%;
+        border-radius: 50%;
+        border: 2px dashed white;
+        width: 1.2rem;
+        height: 1.2rem;
+        z-index: 10;
+        transition: 0.4s;
+    }
+    .target-select {
+        border: none !important;
+        background-color: white !important;
+    }
+    .object {
+        border-radius: 5px;
+        position: absolute;
+        margin: 20px;
+        z-index: 8;
+    }
+</style>
+</body>
+</html>
