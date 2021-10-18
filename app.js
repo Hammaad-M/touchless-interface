@@ -2,8 +2,7 @@ let showData = false;
 const screenWidth = window.screen.width;
 const screenHeight = window.screen.height; 
 let webcamWidth, webcamHeight;
-const HAND_OPEN_BUFFER = 3;
-let handOpenBufferCount = 0;
+const HAND_OPEN_BUFFER = 2;
 const statusDisplay = document.getElementById("status");
 let failed = false;
 let start = false;
@@ -35,37 +34,17 @@ async function setupWebcam(videoRef) {
   }
 }
 
-
-function avg(elems) {
-  return Math.abs((elems.reduce((last, cur) => last + cur, 0)) / elems.length);
-}
-function isHandOpen(hand) {
-  const indexFinger = hand.indexFinger[3];
-  const thumb = hand.thumb[3];
-  const palmBase = hand.palmBase[0];
-  
-  // High difference in z-index between the palm and the fingers means the hand is open
-  const diffZ = avg([indexFinger[2] - palmBase[2],  thumb[2] - palmBase[2]]);
-  if (diffZ >= 34) {
-    handOpenBufferCount = 0;
-    return false;
-  } 
-  if (handOpenBufferCount < HAND_OPEN_BUFFER) {
-    handOpenBufferCount += 1;
-    return false;
-  }
-  return true;
-}
-
 function getHandCoords(hand) {
   const [palmX, palmY, palmZ] = hand.palmBase[0];
   // const meanX = ( boundingBox.topLeft[0] + boundingBox.bottomRight[0] ) / 2;
   // const meanY = ( boundingBox.topLeft[1] + boundingBox.bottomRight[1] ) / 2;
   return [( palmX / webcamWidth ) * 100, ( palmY / webcamHeight ) * 100];
 }
+
 function randomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
+
 function createObjects() {
   const getOffset = () => (Math.floor(Math.random() * 85) + "%");
   const numObjects = 8  ;
@@ -110,7 +89,6 @@ function canGrabItem(xPos, yPos) {
   }
   return null;
 }
-
 async function attempt(code, onSuccess, onError) {
   if (failed) {
     return;
@@ -125,11 +103,11 @@ async function attempt(code, onSuccess, onError) {
   onSuccess();
   return result;
 }
-
 function fail(message) {
   statusDisplay.textContent = message;
   failed = true;  
 }
+
 async function main() {
   console.log("running")
   const videoRef = document.querySelector("video");
@@ -171,7 +149,7 @@ async function main() {
     if (predictions.length > 0) {
       const prediction = predictions[0];
       if (prediction.handInViewConfidence > 0.85) { 
-        const handOpen = isHandOpen(prediction.annotations);
+        const handOpen = isHandOpen(prediction.annotations, HAND_OPEN_BUFFER);
         updateTargetClass(handOpen, target);
         const [xPos, yPos] = getHandCoords(prediction.annotations);
         target.style.right = xPos + "%";
@@ -195,34 +173,7 @@ async function main() {
   }, 50);
 }
 
-/*
-`predictions` is an array of objects describing each detected hand, for example:
-[
-  {
-    handInViewConfidence: 1, // The probability of a hand being present.
-    boundingBox: { // The bounding box surrounding the hand.
-      topLeft: [162.91, -17.42],
-      bottomRight: [548.56, 368.23],
-    },
-    landmarks: [ // The 3D coordinates of each hand landmark.
-      [472.52, 298.59, 0.00],
-      [412.80, 315.64, -6.18],
-      ...
-    ],
-    annotations: { // Semantic groupings of the `landmarks` coordinates.
-      thumb: [
-        [412.80, 315.64, -6.18]
-        [350.02, 298.38, -7.14],
-        ...
-      ],
-      ...
-    }s
-  }
-]
-*/
-
 // UI UTILS
-
 function btnCallback() {
   showData = true;
 }
